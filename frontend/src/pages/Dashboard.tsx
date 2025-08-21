@@ -1,11 +1,16 @@
-import { useState, useEffect } from "react";
+import {  useState, useEffect } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { LayoutDashboard, Star } from "lucide-react";
 import DashboardHome from "../components/DashboardHome";
 import Favourites from "../components/Favourites";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export default function Dashboard() {
+interface DashboardProps {
+  setIsAuthenticated: Dispatch<SetStateAction<boolean>>;
+}
+
+export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [username, setUsername] = useState<string | null>(null);
@@ -41,6 +46,7 @@ export default function Dashboard() {
   const handleLogout = () => {
     console.log("Logging out...");
     localStorage.removeItem("token");
+    setIsAuthenticated(false); // 👈 update parent auth state
     navigate("/login");
   };
 

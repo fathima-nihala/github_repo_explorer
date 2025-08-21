@@ -1,6 +1,7 @@
 
+
 import { useState } from "react";
-import { Search, Github } from "lucide-react";
+import { Search, Github, Star } from "lucide-react";
 import RepositoryCard from "../pages/RepositoryCard";
 
 interface Repository {
@@ -32,41 +33,70 @@ export default function DashboardHome({ username }: { username: string | null })
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
 
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
 
-const handleSearch = async () => {
-  if (!searchQuery.trim()) return;
+    setLoading(true);
+    setError(null);
 
-  setLoading(true);
-  setError(null);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:5000/api/github/search?q=${encodeURIComponent(searchQuery)}`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
 
-  try {
-    const token = localStorage.getItem("token"); // ✅ get real token
-    const response = await fetch(
-      `http://localhost:5000/api/github/search?q=${encodeURIComponent(searchQuery)}`,
-      {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      const data: SearchResponse = await response.json();
+
+      if (data.success) {
+        setRepositories(data.data.items);
+        setTotalCount(data.data.total_count);
+      } else {
+        setError("Failed to search repositories");
       }
-    );
-
-    const data: SearchResponse = await response.json();
-
-    if (data.success) {
-      setRepositories(data.data.items);
-      setTotalCount(data.data.total_count);
-    } else {
-      setError("Failed to search repositories");
+    } catch (err) {
+      setError("Error searching repositories. Please try again.");
+      console.error("Search error:", err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError("Error searching repositories. Please try again.");
-    console.error("Search error:", err);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleSearch();
+  };
+
+  // ⭐ Add to Favourites
+  const addToFavorites = async (repo: Repository) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("You must be logged in to add favourites");
+        return;
+      }
+
+      const response = await fetch("http://localhost:5000/api/favorites", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(repo),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert(`Added "${repo.full_name}" to favourites ⭐`);
+      } else {
+        setError(data.message || "Failed to add favourite");
+      }
+    } catch (err) {
+      console.error("Error adding favourite:", err);
+      setError("Error adding favourite. Please try again.");
+    }
   };
 
   return (
@@ -125,7 +155,21 @@ const handleSearch = async () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {repositories.map((repo) => (
-              <RepositoryCard key={repo.id} repo={repo} />
+              <div
+                key={repo.id}
+                className="relative bg-white rounded-lg shadow-sm border p-4 flex flex-col"
+              >
+                <RepositoryCard repo={repo} />
+
+                {/* Star button */}
+                <button
+                  onClick={() => addToFavorites(repo)}
+                  className="absolute top-3 right-3 text-gray-400 hover:text-yellow-500 transition-colors"
+                  title="Add to favourites"
+                >
+                  <Star size={22} />
+                </button>
+              </div>
             ))}
           </div>
         </div>
