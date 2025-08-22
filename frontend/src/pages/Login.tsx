@@ -23,10 +23,13 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
 
   const navigate = useNavigate();
 
+  const API_URL = import.meta.env.VITE_API_BASE_URL;    
+
+
   const onSubmit = async (data: LoginFormInputs) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        `${API_URL}/api/auth/login`,
         data
       );
       toast.success("Login successful 🎉");

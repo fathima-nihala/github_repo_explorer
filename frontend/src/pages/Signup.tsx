@@ -24,11 +24,13 @@ const Signup: React.FC<SignupProps> = ({ setIsAuthenticated }) => {
   } = useForm<SignupFormInputs>();
 
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
+
 
   const onSubmit = async (data: SignupFormInputs) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        `${API_URL}/api/auth/register`,
         data
       );
       toast.success("Signup successful 🎉 Redirecting...");
@@ -67,9 +69,8 @@ const Signup: React.FC<SignupProps> = ({ setIsAuthenticated }) => {
             <input
               type="text"
               {...register("username", { required: "Username is required" })}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${
-                errors.username ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${errors.username ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="Enter your username"
             />
             {errors.username && (
@@ -91,9 +92,8 @@ const Signup: React.FC<SignupProps> = ({ setIsAuthenticated }) => {
                   message: "Enter a valid email",
                 },
               })}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${errors.email ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="Enter your email"
             />
             {errors.email && (
@@ -115,9 +115,8 @@ const Signup: React.FC<SignupProps> = ({ setIsAuthenticated }) => {
                   message: "Password must be at least 6 characters",
                 },
               })}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${errors.password ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="Enter your password"
             />
             {errors.password && (

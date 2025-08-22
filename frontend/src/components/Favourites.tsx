@@ -49,12 +49,14 @@ export default function Favourites() {
     const [favourites, setFavourites] = useState<Repository[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    // ✅ fetch favourites
+    const API_URL = import.meta.env.VITE_API_BASE_URL;
+
+
     const fetchFavourites = async () => {
         try {
             setLoading(true);
             const res = await axios.get<{ data: FavoriteResponse[] }>(
-                "http://localhost:5000/api/favorites",
+                `${API_URL}/api/favorites`,
                 getAuthHeaders()
             );
 
@@ -97,7 +99,7 @@ export default function Favourites() {
     const removeFavourite = async (repoId: number) => {
         try {
             await axios.delete(
-                `http://localhost:5000/api/favorites/${repoId}`,
+                `${API_URL}/api/favorites/${repoId}`,
                 getAuthHeaders()
             );
             setFavourites((prev) => prev.filter((repo) => repo.id !== repoId));
